@@ -1,6 +1,6 @@
 using System;
 
-namespace WebAPISwagger
+namespace WebAPISwagger.Data.Models
 {
     public class WeatherForecast
     {
