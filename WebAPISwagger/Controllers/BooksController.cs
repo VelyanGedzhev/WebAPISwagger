@@ -1,17 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using WebAPISwagger.Data.Models;
 using WebAPISwagger.Services;
 
 namespace WebAPISwagger.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class BooksController : ControllerBase
     {
         private readonly IBookService books;
@@ -21,35 +15,59 @@ namespace WebAPISwagger.Controllers
             this.books = books;
         }
 
-        [HttpGet]
-        public IEnumerable<BookServiceModel> Get(int id)
+        [HttpGet("{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public ActionResult<BookServiceModel> GetBook(int id)
         {
-            return this.books.GetBooks(id);
+            var book =  this.books.GetBook(id);
+
+            if (book == null)
+            {
+                return NotFound();
+            }
+
+            return book;
+        }
+
+        [HttpGet]
+        public IEnumerable<BookServiceModel> GetBooks()
+        {
+            return this.books.GetBooks();
         }
 
         [HttpPost]
-        public void Post(BookServiceModel book)
+        public ActionResult<BookServiceModel> PostBook(BookServiceModel book)
         {
-            this.books.CreateBook(book);
+            var bookId = this.books.RegisterBook(book);
+
+            return CreatedAtAction(nameof(GetBook), new { id = bookId }, book); 
         }
 
-        [HttpPut]
-        public void Put(int id, BookServiceModel book)
+        [HttpPut("{id}")]
+        public IActionResult PutBook(int id, BookServiceModel book)
         {
-            this.books.UpdateBook(id, book);
+            var isUpdated = this.books.UpdateBook(id, book);
+
+            if (!isUpdated)
+            {
+                return BadRequest();
+            }
+
+            return NoContent();
         }
 
         [HttpDelete]
-        public HttpResponseMessage Delete(int id)
+        public ActionResult<BookServiceModel> Delete(int id)
         {
-            var isDeleted = this.books.DeleteBook(id);
+            var bookToDelete = this.books.DeleteBook(id);
 
-            if (!isDeleted)
+            if (bookToDelete == null)
             {
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
+                return NotFound();
             }
 
-            return new HttpResponseMessage(HttpStatusCode.OK);
+            return bookToDelete;
         }
     }
 }

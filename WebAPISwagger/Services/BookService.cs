@@ -14,7 +14,7 @@ namespace WebAPISwagger.Services
             this.data = data;
         }
 
-        public void CreateBook(BookServiceModel book)
+        public int RegisterBook(BookServiceModel book)
         {
             var bookToAdd = new Book
             {
@@ -26,20 +26,28 @@ namespace WebAPISwagger.Services
 
             this.data.Books.Add(bookToAdd);
             this.data.SaveChanges();
+
+            var bookId = GetRegisteredBookId(book.Name, book.AuthorName);
+            return bookId;
         }
+        
 
-        public IEnumerable<BookServiceModel> GetBooks(int id = 0)
-        {
-            var query = this.data
+        public BookServiceModel GetBook(int id)
+            => this.data
                 .Books
-                .AsQueryable();
+                .Where(b => b.Id == id)
+                .Select(b => new BookServiceModel
+                {
+                    Name = b.Name,
+                    AuthorName = b.AuthorName,
+                    Price = b.Price,
+                    Year = b.Year
+                })
+               .FirstOrDefault();
 
-            if (id != 0)
-            {
-                query = query.Where(b => b.Id == id);
-            }
-
-            var queryList = query
+        public IEnumerable<BookServiceModel> GetBooks() 
+            => this.data
+                .Books
                 .Select(b => new BookServiceModel
                 {
                     Name = b.Name,
@@ -49,16 +57,13 @@ namespace WebAPISwagger.Services
                 })
                 .ToList();
 
-            return queryList;
-        }
-
-        public void UpdateBook(int id, BookServiceModel book)
+        public bool UpdateBook(int id, BookServiceModel book)
         {
             var bookToUpdate = IsBookExisting(id);
 
             if (bookToUpdate == null)
             {
-                return;
+                return false;
             }
 
             bookToUpdate.Name = book.Name;
@@ -67,22 +72,36 @@ namespace WebAPISwagger.Services
             bookToUpdate.Price = book.Price;
 
             this.data.SaveChanges();
+
+            return true;
         }
 
-        public bool DeleteBook(int id)
+        public BookServiceModel DeleteBook(int id)
         {
             var bookToDelete = IsBookExisting(id);
-
-            if (bookToDelete == null)
-            {
-                return false;
-            }
 
             this.data.Remove(bookToDelete);
             this.data.SaveChanges();
 
-            return true;
+            var bookToReturn = new BookServiceModel
+            {
+                Name = bookToDelete.Name,
+                AuthorName = bookToDelete.AuthorName,
+                Year = bookToDelete.Year,
+                Price = bookToDelete.Price
+            };
+
+            return bookToReturn;
         }
+
+        private int GetRegisteredBookId(string bookName, string authorName) 
+            => this.data
+                .Books
+                .Where(b =>
+                    b.Name == bookName &&
+                    b.AuthorName == authorName)
+                .Select(b => b.Id)
+                .FirstOrDefault();
 
         private Book IsBookExisting(int id)
             => this.data

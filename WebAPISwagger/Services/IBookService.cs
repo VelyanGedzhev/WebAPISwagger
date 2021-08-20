@@ -4,14 +4,14 @@ namespace WebAPISwagger.Services
 {
     public interface IBookService
     {
-        void CreateBook(BookServiceModel book);
+        int RegisterBook(BookServiceModel book);
 
-        //BookServiceModel GetBook(int id);
+        BookServiceModel GetBook(int id);
 
-        IEnumerable<BookServiceModel> GetBooks(int id = 0);
+        IEnumerable<BookServiceModel> GetBooks();
 
-        void UpdateBook(int id, BookServiceModel book);
+        bool UpdateBook(int id, BookServiceModel book);
 
-        bool DeleteBook(int id);
+        BookServiceModel DeleteBook(int id);
     }
 }
