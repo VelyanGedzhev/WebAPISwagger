@@ -23,15 +23,15 @@ namespace WebAPISwagger
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var builder = new SqlConnectionStringBuilder(
-            Configuration.GetConnectionString("DefaultConnection"));
-            builder.UserID = Configuration["DbUser"];
-            builder.Password = Configuration["DbPassword"];
-            Connection = builder.ConnectionString;
+            //var builder = new SqlConnectionStringBuilder(
+            //Configuration.GetConnectionString("DefaultConnection"));
+            //builder.UserID = Configuration["DbUser"];
+            //builder.Password = Configuration["DbPassword"];
+            //Connection = builder.ConnectionString;
 
             services
                 .AddDbContext<ApplicationDbContext>(options => options
-                .UseSqlServer(Connection));
+                .UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddControllers();
             services.AddSwaggerGen();
