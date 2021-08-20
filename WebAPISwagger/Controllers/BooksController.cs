@@ -57,7 +57,7 @@ namespace WebAPISwagger.Controllers
             return NoContent();
         }
 
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public ActionResult<BookServiceModel> Delete(int id)
         {
             var bookToDelete = this.books.DeleteBook(id);
