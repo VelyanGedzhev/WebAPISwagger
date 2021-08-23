@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using WebAPISwagger.Data;
 using WebAPISwagger.Data.Models;
 
@@ -14,7 +16,7 @@ namespace WebAPISwagger.Services
             this.data = data;
         }
 
-        public int RegisterBook(BookServiceModel book)
+        public async Task<int> RegisterBook(BookServiceModel book)
         {
             var bookToAdd = new Book
             {
@@ -24,16 +26,16 @@ namespace WebAPISwagger.Services
                 Year = book.Year
             };
 
-            this.data.Books.Add(bookToAdd);
-            this.data.SaveChanges();
+            await this.data.Books.AddAsync(bookToAdd);
+            await this.data.SaveChangesAsync();
 
             var bookId = GetRegisteredBookId(book.Name, book.AuthorName);
-            return bookId;
+
+            return await bookId;
         }
         
-
-        public BookServiceModel GetBook(int id)
-            => this.data
+        public async Task<BookServiceModel> GetBook(int id)
+            => await this.data
                 .Books
                 .Where(b => b.Id == id)
                 .Select(b => new BookServiceModel
@@ -43,23 +45,23 @@ namespace WebAPISwagger.Services
                     Price = b.Price,
                     Year = b.Year
                 })
-               .FirstOrDefault();
+               .FirstOrDefaultAsync();
 
-        public IEnumerable<BookServiceModel> GetBooks() 
-            => this.data
-                .Books
-                .Select(b => new BookServiceModel
-                {
-                    Name = b.Name,
-                    AuthorName = b.AuthorName,
-                    Price = b.Price,
-                    Year = b.Year
-                })
-                .ToList();
+        public async Task<IEnumerable<BookServiceModel>> GetBooks() 
+            => await this.data
+                 .Books
+                 .Select(b => new BookServiceModel
+                 {
+                     Name = b.Name,
+                     AuthorName = b.AuthorName,
+                     Price = b.Price,
+                     Year = b.Year
+                 })
+                 .ToListAsync();
 
-        public bool UpdateBook(int id, BookServiceModel book)
+        public async Task<bool> UpdateBook(int id, BookServiceModel book)
         {
-            var bookToUpdate = IsBookExisting(id);
+            var bookToUpdate = await IsBookExisting(id);
 
             if (bookToUpdate == null)
             {
@@ -71,17 +73,17 @@ namespace WebAPISwagger.Services
             bookToUpdate.Year = book.Year;
             bookToUpdate.Price = book.Price;
 
-            this.data.SaveChanges();
+            await this.data.SaveChangesAsync();
 
             return true;
         }
 
-        public BookServiceModel DeleteBook(int id)
+        public async Task<BookServiceModel> DeleteBook(int id)
         {
-            var bookToDelete = IsBookExisting(id);
+            var bookToDelete = await IsBookExisting (id);
 
             this.data.Remove(bookToDelete);
-            this.data.SaveChanges();
+            await this.data.SaveChangesAsync();
 
             var bookToReturn = new BookServiceModel
             {
@@ -94,18 +96,18 @@ namespace WebAPISwagger.Services
             return bookToReturn;
         }
 
-        private int GetRegisteredBookId(string bookName, string authorName) 
-            => this.data
+        private async Task<int> GetRegisteredBookId(string bookName, string authorName) 
+            => await this.data
                 .Books
                 .Where(b =>
                     b.Name == bookName &&
                     b.AuthorName == authorName)
                 .Select(b => b.Id)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
 
-        private Book IsBookExisting(int id)
-            => this.data
+        private async Task<Book> IsBookExisting(int id)
+            => await this.data
                 .Books
-                .FirstOrDefault(b => b.Id == id);
+                .FirstOrDefaultAsync(b => b.Id == id);
     }
 }

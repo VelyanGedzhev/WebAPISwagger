@@ -1,17 +1,18 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace WebAPISwagger.Services
 {
     public interface IBookService
     {
-        int RegisterBook(BookServiceModel book);
+        Task<int> RegisterBook(BookServiceModel book);
 
-        BookServiceModel GetBook(int id);
+        Task<BookServiceModel> GetBook(int id);
 
-        IEnumerable<BookServiceModel> GetBooks();
+        Task<IEnumerable<BookServiceModel>> GetBooks();
 
-        bool UpdateBook(int id, BookServiceModel book);
+        Task<bool> UpdateBook(int id, BookServiceModel book);
 
-        BookServiceModel DeleteBook(int id);
+        Task<BookServiceModel> DeleteBook(int id);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using WebAPISwagger.Services;
 
 namespace WebAPISwagger.Controllers
@@ -18,9 +19,9 @@ namespace WebAPISwagger.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
-        public ActionResult<BookServiceModel> GetBook(int id)
+        public async Task<ActionResult<BookServiceModel>> GetBook(int id)
         {
-            var book =  this.books.GetBook(id);
+            var book =  await this.books.GetBook(id);
 
             if (book == null)
             {
@@ -31,23 +32,23 @@ namespace WebAPISwagger.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<BookServiceModel> GetBooks()
+        public async Task<IEnumerable<BookServiceModel>> GetBooks()
         {
-            return this.books.GetBooks();
+            return  await this.books.GetBooks();
         }
 
         [HttpPost]
-        public ActionResult<BookServiceModel> PostBook(BookServiceModel book)
+        public async Task<ActionResult<BookServiceModel>> PostBook(BookServiceModel book)
         {
-            var bookId = this.books.RegisterBook(book);
+            var bookId = await this.books.RegisterBook(book);
 
             return CreatedAtAction(nameof(GetBook), new { id = bookId }, book); 
         }
 
         [HttpPut("{id}")]
-        public IActionResult PutBook(int id, BookServiceModel book)
+        public async Task<IActionResult> PutBook(int id, BookServiceModel book)
         {
-            var isUpdated = this.books.UpdateBook(id, book);
+            var isUpdated = await this.books.UpdateBook(id, book);
 
             if (!isUpdated)
             {
@@ -58,9 +59,9 @@ namespace WebAPISwagger.Controllers
         }
 
         [HttpDelete("{id}")]
-        public ActionResult<BookServiceModel> Delete(int id)
+        public async Task<ActionResult<BookServiceModel>> Delete(int id)
         {
-            var bookToDelete = this.books.DeleteBook(id);
+            var bookToDelete = await this.books.DeleteBook(id);
 
             if (bookToDelete == null)
             {
